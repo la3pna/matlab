@@ -1,11 +1,12 @@
-%calculation on coupling factor of inductors.
+%calculation on coupling factor of 
 
+
+% definition on what vector to calculate K from
 %Vector configured as L(aiding), L(opposing)
 %x = ft3743  ;
 %do the calculation
 function [klist] = inductance_k(inductors)
 
-%uses non optimal metod for calculation on vector
 for i = 1:(length(inductors))
     
 a = inductors(i,1)/inductors(i,2);

@@ -1,7 +1,9 @@
-vcc = 12;
-ve= 0;
-pout= 6;
+%Power amplifier output impedance
 
-Rl = (vcc-ve)^2/(2.*pout)
+vcc = 12; %Supply voltage
+ve= 0;  %Emitter voltage (voltage over emitter resistor)
+pout= 6; %Power out
 
-n = sqrt(50/Rl)
+Rl = (vcc-ve)^2/(2.*pout) %Target load impedance
+
+n = sqrt(50/Rl) %Transformer turns ratio

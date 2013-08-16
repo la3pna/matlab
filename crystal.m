@@ -1,6 +1,7 @@
 %program for modelling of crystals.
-%A = parallellfreq
-%b= seriefreq
+%A = parallelfreq
+%b= seriesfreq
+%sorts vector and calculates paramters
 
 s = sortrows(xtal_freq,2)
 cs=0.0000000000251;
