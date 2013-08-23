@@ -31,3 +31,4 @@ crystal.m - Sorts and calculates crystal parameters.
 
 bpf_dtc_classic.m - Calculates an classical 2 resonator band pass filter. 
 
+bpf_ttc_mixed.m - Calculates an mixed type 3 resonator band pass filter.
