@@ -3,6 +3,12 @@ function [Ce,Cte,Ctm,Cm,Ln] = bpf_ttc_mixed(Fm,Ln,Qu,B,R0)
 %based on routine by Wes Hayward W7ZOI.
 %Uses improved method of calculating Ctm, Cte, values differ a bit from
 %TTC.exe. 
+%Script returns:
+%Ce - end capacitor.
+%Cte - resonates end resonators.
+%Ctm - resonates center resonator.
+%Cm - Coupling capacitor.
+%Ln - Inductance of inductors.
 
 k = 0.7071; % k value for butterworth filter n = 3.
 q = 1.0; % q value for butterworth filter n = 3.
