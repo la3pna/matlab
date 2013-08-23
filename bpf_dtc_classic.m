@@ -12,7 +12,7 @@ if k == 0 % takes care of the definition of k for butterworth
     k = 0.707;
 end
 
-if q == 0; % takes care of the definition of k for butterworth
+if q == 0; % takes care of the definition of q for butterworth
     q = 1.414;
 end
 
