@@ -20,3 +20,6 @@ C1 = c1calc* 10^12
  
  ccpl = 1/(w*320);
 Ccpl = ccpl*10^12
+
+ctune = (w^2*l1calc)^-1;
+Ctune = ctune*10^12
