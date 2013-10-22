@@ -27,11 +27,11 @@ Vgs = V(y);
 
 Gm = 2*(Idssa/Vp)*(1-(Vgs/Vp))
 
-%plots Gm with different Vgs
+%plot Gm with different Vgs
 Gma = 2.*(Idssa./Vp).*(1-(V./Vp));
 figure(2);
 plot(V,Gma);
-xlabel('Voltage Vp');
+xlabel('Voltage Vgs');
 ylabel('Gm (Siemens)');
 title('J-FET transconductance');
 
