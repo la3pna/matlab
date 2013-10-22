@@ -11,6 +11,7 @@ V = Vp:0.01:0;
 a = V/Vp;
 I = Idss * (1-a).^2;
 
+figure(1);
 plot(V,I);
 xlabel('Voltage Vg');
 ylabel('I(v) Drain current mA');
@@ -26,4 +27,11 @@ Vgs = V(y);
 
 Gm = 2*(Idssa/Vp)*(1-(Vgs/Vp))
 
+%plots Gm with different Vgs
+Gma = 2.*(Idssa./Vp).*(1-(V./Vp));
+figure(2);
+plot(V,Gma);
+xlabel('Voltage Vp');
+ylabel('Gm (Siemens)');
+title('J-FET transconductance');
 
