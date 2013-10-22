@@ -11,7 +11,8 @@ C1 = c1calc .* 10^12;
  L1 = l1calc .* 10^6;
  ccpl = 1/(w.*320);
 Ccpl = ccpl.*10^12;
-ctune = (w.^2.*l1calc).^-1;
+a =1/(1/c1calc + 1/c2calc) ;
+ctune = (w.^2.*l1calc).^-1 - a;
 Ctune = ctune.*10.^12;
 ret = [freq, C1, C2, Ccpl, Ctune, L1];
 
