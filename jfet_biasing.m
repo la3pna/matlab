@@ -1,9 +1,9 @@
 % j-fet simulations and calculations.
 % from http://www.qrp.pops.net/fetbias.asp
 
-Vp = -2.8 ; % volt (negative for N channel)
-Idss = 11; % milliamperes
-Id = 5 ;% selected bias point mA
+Vp = -3.3 ; % volt (negative for N channel)
+Idss = 42; % milliamperes
+Id = 10 ;% selected bias point mA
 
 
 V = Vp:0.01:0;
@@ -12,11 +12,11 @@ a = V/Vp;
 I = Idss * (1-a).^2;
 
 figure(1);
-plot(V,I);
+plot(V,I,'linewidth',2);
 xlabel('Voltage Vg');
 ylabel('I(v) Drain current mA');
 title('J-FET biasing');
-
+xkcdify(gca)
 Ida = Id *10^-3;
 Idssa = Idss *10^-3;
 
@@ -30,8 +30,8 @@ Gm = 2*(Idssa/Vp)*(1-(Vgs/Vp))
 %plot Gm with different Vgs
 Gma = 2.*(Idssa./Vp).*(1-(V./Vp));
 figure(2);
-plot(V,Gma);
+plot(V,Gma,'linewidth',2);
 xlabel('Voltage Vgs');
 ylabel('Gm (Siemens)');
 title('J-FET transconductance');
-
+xkcdify(gca)
