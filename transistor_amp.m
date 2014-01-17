@@ -1,8 +1,9 @@
 %Power amplifier output impedance
 
 vcc = 12; %Supply voltage
-ve= 0;  %Emitter voltage (voltage over emitter resistor)
-pout= 6; %Power out
+ve= 0; %Emitter voltage (voltage over emitter resistor)
+pout= 6
+; %Power out
 
 Rl = (vcc-ve)^2/(2.*pout) %Target load impedance
 

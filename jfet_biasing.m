@@ -3,7 +3,7 @@
 
 Vp = -3.3 ; % volt (negative for N channel)
 Idss = 42; % milliamperes
-Id = 10 ;% selected bias point mA
+Id = 1 ;% selected bias point mA
 
 
 V = Vp:0.01:0;
