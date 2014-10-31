@@ -1,9 +1,9 @@
 % j-fet simulations and calculations.
 % from http://www.qrp.pops.net/fetbias.asp
 
-Vp = -3.3 ; % volt (negative for N channel)
-Idss = 42; % milliamperes
-Id = 1 ;% selected bias point mA
+Vp = -3.417 ; % volt (negative for N channel)
+Idss = 30; % milliamperes
+Id = 2 ;% selected bias point mA
 
 
 V = Vp:0.01:0;

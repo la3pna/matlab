@@ -1,0 +1,469 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>trl</title><meta name="generator" content="MATLAB 7.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-06-07"><meta name="DC.source" content="trl.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="keyword">function</span> [Sx,GL]=trl(Sthru,Sopen,Sline,Sdut,freq)
+
+<span class="comment">% TRL performs a two-tier TRL calibration for a vector network analyser.</span>
+<span class="comment">% The first calibration consist of a normal co-axial SOLT two-port calibration</span>
+<span class="comment">% followed by measurements on the TRL calibration standards and the DUT. The</span>
+<span class="comment">% function then performs the second tier of the calibration by de-embedding the</span>
+<span class="comment">% effect of the TRL test fixture from the DUT measurements using the measurements</span>
+<span class="comment">% peformed on the TRL calibration standards.</span>
+<span class="comment">%</span>
+<span class="comment">% The function uses the following input parameters:</span>
+<span class="comment">%</span>
+<span class="comment">%    Sthru   Four colom matrix containing S-Parameters of the thru measurement on</span>
+<span class="comment">%            TRL test fixture.</span>
+<span class="comment">%    Sopen   Four colom matrix containing S-Parameters of the open measurement on</span>
+<span class="comment">%            TRL test fixture.  Only S11 and S22 is of interest here and the S21 and</span>
+<span class="comment">%            S12 data which will be in the noise floor of the VNA will be discarded.</span>
+<span class="comment">%    Sline   Four colom matrix containing S-Parameters of the line measurement on</span>
+<span class="comment">%            TRL test fixture.</span>
+<span class="comment">%    Sdut    Four colom matrix containing S-Parameters of the DUT inserted into the</span>
+<span class="comment">%            TRL test fixture.</span>
+<span class="comment">%    f       Frequencies at which S-Parameters were measured in Hz.</span>
+<span class="comment">%</span>
+<span class="comment">% The coloms of the S-Parameter matrix represent [S11 S21 S12 S22].</span>
+<span class="comment">%</span>
+<span class="comment">% format: [Sx,GL]=trl(Sthru,Sopen,Sline,Sdut,freq)</span>
+<span class="comment">%</span>
+<span class="comment">% The output consists of the de-embedded device S-Parameters (Sx), and the propagation</span>
+<span class="comment">% constant (GL) of the line standard used in the TRL calibration.  The propagation constant</span>
+<span class="comment">% can be used to calculate the characteristic impedance of the microstrip calibration</span>
+<span class="comment">% line.  Since microstrip is a dispersive transmission line, the characteristic impedance</span>
+<span class="comment">% will vary as a function of frequency.  The measured S-Parameters will be normalised with</span>
+<span class="comment">% respect to the actual characteristic impedance of the transmission line calibration</span>
+<span class="comment">% standard.  By extracting this impedance, the S-Parameter data can be renormalised to</span>
+<span class="comment">% 50 Ohm.</span>
+<span class="comment">%</span>
+<span class="comment">% See TRLPOST.M for some post processing functions that can be performed.</span>
+<span class="comment">%</span>
+<span class="comment">% Writer  : C. van Niekerk</span>
+<span class="comment">% Version : 3.50</span>
+<span class="comment">% Date    : 07/06/1995</span>
+
+<span class="comment">% This program is based on the work in the presented in the following paper:</span>
+<span class="comment">%</span>
+<span class="comment">% [1]   G.F. Engen, C.A. Hoer, "Thru-Reflect-Line: An Improved Technique for</span>
+<span class="comment">%       Calibrating the Dual Six-Port Automatic Network Analyser,"</span>
+<span class="comment">%       IEEE Trans. MTT, Vol. 27,No. 12, December 1979, pp. 987-998</span>
+
+
+<span class="comment">% Define the imaginary constant</span>
+
+i=sqrt(-1);
+
+<span class="comment">% Convert the measured s-parameters of the DEVICE to one variable</span>
+
+S11d = Sdut(:,1);
+S21d = Sdut(:,2);
+S12d = Sdut(:,3);
+S22d = Sdut(:,4);
+
+<span class="comment">% Convert the measured s-parameters of the REFLECT standerd to one variable</span>
+
+S11r = Sopen(:,1);
+S22r = Sopen(:,4);
+
+<span class="comment">% Convert the measured s-parameters of the THRU standerd to one variable</span>
+
+S11t = Sthru(:,1);
+S21t = Sthru(:,2);
+S12t = Sthru(:,3);
+S22t = Sthru(:,4);
+
+<span class="comment">% Convert the measured s-parameters of the LINE standerd to one variable</span>
+
+S11l = Sline(:,1);
+S21l = Sline(:,2);
+S12l = Sline(:,3);
+S22l = Sline(:,4);
+
+<span class="comment">% Compute the wave cascading matrix for the thru standerd</span>
+
+R11t = -(S11t.*S22t - S12t.*S21t)./S21t;
+R12t =  S11t./S21t;
+R21t = -S22t./S21t;
+R22t =  1 ./ S21t;
+
+<span class="comment">% Compute the wave cascading matrix for the line standerd</span>
+
+R11l = -(S11l.*S22l - S12l.*S21l)./S21l;
+R12l =  S11l./S21l;
+R21l = -S22l./S21l;
+R22l =  1 ./ S21l;
+
+<span class="comment">% Compute the wave cascading matrix for the device standerd</span>
+
+R11m = -(S11d.*S22d - S12d.*S21d)./S21d;
+R12m =  S11d./S21d;
+R21m = -S22d./S21d;
+R22m =  1 ./ S21d;
+
+<span class="comment">% Calculate the two possible virtual error networks for port A</span>
+<span class="comment">% and port B using the s-parameters of the thru and line standerds</span>
+
+<span class="comment">% Determine the number of frequency points</span>
+
+nfreq=length(freq);
+
+<span class="keyword">for</span> n = 1:nfreq
+
+  Rt = [ R11t(n) R12t(n) ; R21t(n) R22t(n) ];
+  Rl = [ R11l(n) R12l(n) ; R21l(n) R22l(n) ];
+  T  = Rl*inv(Rt);
+
+<span class="comment">% Solve a set of quadratic equations to get the values of r11a/r21a</span>
+<span class="comment">% and r12a/r22a</span>
+
+  A =  T(2,1);
+  B =  T(2,2) - T(1,1);
+  C = -T(1,2);
+
+  K1 = (-B + sqrt((B^2)-4*A*C))/(2*A);
+  K2 = (-B - sqrt((B^2)-4*A*C))/(2*A);
+
+<span class="comment">% Choose between the two possible roots to get the right values for</span>
+<span class="comment">% b and c/a</span>
+
+  <span class="keyword">if</span> abs(K1)&lt;abs(K2)
+    b  = K1;
+    ca = 1/K2;
+  <span class="keyword">end</span>;
+
+  <span class="keyword">if</span> abs(K2)&lt;abs(K1)
+    b  = K2;
+    ca = 1/K1;
+  <span class="keyword">end</span>;
+
+<span class="comment">% Calculates the propogation constant of the LINE standerd.</span>
+
+  GL(n) = -log(T(1,1)+T(1,2)*ca);
+
+<span class="comment">% Calculates "a"</span>
+
+  w1 = S11r(n);
+  w2 = S22r(n);
+
+  g =  1/S21t(n);
+  d = -(S11t(n)*S22t(n) - S12t(n)*S21t(n));
+  e =  S11t(n);
+  f = -S22t(n);
+
+  gamma     = (f-d*ca)/(1-e*ca);
+  beta_alfa = (e-b)/(d-b*f);
+
+  a = sqrt(((w1-b)*(1+w2*beta_alfa)*(d-b*f))/((w2+gamma)*(1-w1*ca)*(1-e*ca)));
+
+<span class="comment">% Calculates the reflection coeffisients at each port to determine the correct</span>
+<span class="comment">% sign that should be assigned to a</span>
+
+  R1a = (w1-b)/(a-w1*a*ca);
+  R1b = (w1-b)/(w1*a*ca-a);
+
+<span class="comment">% An open is used for the reflection measurement.  Use this information to</span>
+<span class="comment">% chose the sign of a</span>
+
+  <span class="keyword">if</span> abs(angle(R1a)*180/pi)&lt;90
+    a = a;
+    as(n) = a;
+    c = ca*a;
+  <span class="keyword">end</span>;
+
+  <span class="keyword">if</span> abs(angle(R1b)*180/pi)&lt;90
+    a = -a;
+    as(n) = a;
+    c = ca*a;
+  <span class="keyword">end</span>;
+
+  R1(n) = (w1-b)/(a-c*w1);
+
+  alfa = (d-b*f)/(a*(1-e*ca));
+  beta = beta_alfa*alfa;
+
+  r22p22 = R11t(n)/(a*alfa + b*gamma);
+
+  IRa = [ 1 -b ; -c a ];
+  IRb = [ 1 -beta ; -gamma alfa ];
+
+  Rm  = [ R11m(n) R12m(n) ; R21m(n) R22m(n) ];
+
+  Rx = 1/(r22p22*(alfa-gamma*beta)*(a-b*c))*IRa*Rm*IRb;
+
+  S11x(n) =  Rx(1,2)/Rx(2,2);
+  S12x(n) =  Rx(1,1) - Rx(1,2)*Rx(2,1)/Rx(2,2);
+  S21x(n) =  1/Rx(2,2);
+  S22x(n) = -Rx(2,1)/Rx(2,2);
+
+<span class="keyword">end</span>;
+
+Sx=[S11x.' S21x.' S12x.' S22x.'];
+</pre><pre class="codeoutput">Input argument "Sdut" is undefined.
+
+Error in ==&gt; trl at 55
+S11d = Sdut(:,1);
+</pre><p class="footer"><br>
+      Published with MATLAB&reg; 7.12<br></p></div><!--
+##### SOURCE BEGIN #####
+function [Sx,GL]=trl(Sthru,Sopen,Sline,Sdut,freq)
+
+% TRL performs a two-tier TRL calibration for a vector network analyser.
+% The first calibration consist of a normal co-axial SOLT two-port calibration
+% followed by measurements on the TRL calibration standards and the DUT. The 
+% function then performs the second tier of the calibration by de-embedding the
+% effect of the TRL test fixture from the DUT measurements using the measurements
+% peformed on the TRL calibration standards.  
+% 
+% The function uses the following input parameters:
+%
+%    Sthru   Four colom matrix containing S-Parameters of the thru measurement on
+%            TRL test fixture.
+%    Sopen   Four colom matrix containing S-Parameters of the open measurement on
+%            TRL test fixture.  Only S11 and S22 is of interest here and the S21 and
+%            S12 data which will be in the noise floor of the VNA will be discarded.
+%    Sline   Four colom matrix containing S-Parameters of the line measurement on
+%            TRL test fixture.
+%    Sdut    Four colom matrix containing S-Parameters of the DUT inserted into the
+%            TRL test fixture.
+%    f       Frequencies at which S-Parameters were measured in Hz.
+%
+% The coloms of the S-Parameter matrix represent [S11 S21 S12 S22].
+%
+% format: [Sx,GL]=trl(Sthru,Sopen,Sline,Sdut,freq)
+%
+% The output consists of the de-embedded device S-Parameters (Sx), and the propagation 
+% constant (GL) of the line standard used in the TRL calibration.  The propagation constant
+% can be used to calculate the characteristic impedance of the microstrip calibration 
+% line.  Since microstrip is a dispersive transmission line, the characteristic impedance
+% will vary as a function of frequency.  The measured S-Parameters will be normalised with
+% respect to the actual characteristic impedance of the transmission line calibration
+% standard.  By extracting this impedance, the S-Parameter data can be renormalised to 
+% 50 Ohm.  
+%
+% See TRLPOST.M for some post processing functions that can be performed.
+%
+% Writer  : C. van Niekerk
+% Version : 3.50
+% Date    : 07/06/1995
+
+% This program is based on the work in the presented in the following paper:
+%
+% [1]   G.F. Engen, C.A. Hoer, "Thru-Reflect-Line: An Improved Technique for
+%       Calibrating the Dual Six-Port Automatic Network Analyser,"
+%       IEEE Trans. MTT, Vol. 27,No. 12, December 1979, pp. 987-998
+
+
+% Define the imaginary constant
+
+i=sqrt(-1);     
+
+% Convert the measured s-parameters of the DEVICE to one variable
+
+S11d = Sdut(:,1);
+S21d = Sdut(:,2);
+S12d = Sdut(:,3);
+S22d = Sdut(:,4);
+
+% Convert the measured s-parameters of the REFLECT standerd to one variable
+
+S11r = Sopen(:,1);
+S22r = Sopen(:,4);
+
+% Convert the measured s-parameters of the THRU standerd to one variable
+
+S11t = Sthru(:,1);
+S21t = Sthru(:,2);
+S12t = Sthru(:,3);
+S22t = Sthru(:,4);
+
+% Convert the measured s-parameters of the LINE standerd to one variable
+
+S11l = Sline(:,1);
+S21l = Sline(:,2);
+S12l = Sline(:,3);
+S22l = Sline(:,4);
+
+% Compute the wave cascading matrix for the thru standerd
+
+R11t = -(S11t.*S22t - S12t.*S21t)./S21t;
+R12t =  S11t./S21t;
+R21t = -S22t./S21t;
+R22t =  1 ./ S21t;
+
+% Compute the wave cascading matrix for the line standerd
+
+R11l = -(S11l.*S22l - S12l.*S21l)./S21l;
+R12l =  S11l./S21l;
+R21l = -S22l./S21l;
+R22l =  1 ./ S21l;
+
+% Compute the wave cascading matrix for the device standerd
+
+R11m = -(S11d.*S22d - S12d.*S21d)./S21d;
+R12m =  S11d./S21d;
+R21m = -S22d./S21d;
+R22m =  1 ./ S21d;
+
+% Calculate the two possible virtual error networks for port A
+% and port B using the s-parameters of the thru and line standerds
+
+% Determine the number of frequency points
+
+nfreq=length(freq);
+
+for n = 1:nfreq
+
+  Rt = [ R11t(n) R12t(n) ; R21t(n) R22t(n) ];
+  Rl = [ R11l(n) R12l(n) ; R21l(n) R22l(n) ];
+  T  = Rl*inv(Rt);
+
+% Solve a set of quadratic equations to get the values of r11a/r21a
+% and r12a/r22a
+
+  A =  T(2,1);
+  B =  T(2,2) - T(1,1);
+  C = -T(1,2);
+
+  K1 = (-B + sqrt((B^2)-4*A*C))/(2*A);
+  K2 = (-B - sqrt((B^2)-4*A*C))/(2*A);
+
+% Choose between the two possible roots to get the right values for
+% b and c/a
+
+  if abs(K1)<abs(K2)
+    b  = K1;
+    ca = 1/K2;
+  end;
+
+  if abs(K2)<abs(K1)
+    b  = K2;
+    ca = 1/K1;
+  end;
+
+% Calculates the propogation constant of the LINE standerd.
+
+  GL(n) = -log(T(1,1)+T(1,2)*ca);
+
+% Calculates "a"
+
+  w1 = S11r(n);
+  w2 = S22r(n);
+
+  g =  1/S21t(n);
+  d = -(S11t(n)*S22t(n) - S12t(n)*S21t(n));
+  e =  S11t(n);
+  f = -S22t(n);
+
+  gamma     = (f-d*ca)/(1-e*ca);
+  beta_alfa = (e-b)/(d-b*f);
+
+  a = sqrt(((w1-b)*(1+w2*beta_alfa)*(d-b*f))/((w2+gamma)*(1-w1*ca)*(1-e*ca)));
+
+% Calculates the reflection coeffisients at each port to determine the correct
+% sign that should be assigned to a
+
+  R1a = (w1-b)/(a-w1*a*ca);
+  R1b = (w1-b)/(w1*a*ca-a);
+
+% An open is used for the reflection measurement.  Use this information to
+% chose the sign of a 
+
+  if abs(angle(R1a)*180/pi)<90
+    a = a;
+    as(n) = a;
+    c = ca*a;
+  end;
+
+  if abs(angle(R1b)*180/pi)<90
+    a = -a;
+    as(n) = a;
+    c = ca*a;
+  end;
+
+  R1(n) = (w1-b)/(a-c*w1);
+
+  alfa = (d-b*f)/(a*(1-e*ca));
+  beta = beta_alfa*alfa;
+
+  r22p22 = R11t(n)/(a*alfa + b*gamma);
+
+  IRa = [ 1 -b ; -c a ];
+  IRb = [ 1 -beta ; -gamma alfa ];
+
+  Rm  = [ R11m(n) R12m(n) ; R21m(n) R22m(n) ];
+
+  Rx = 1/(r22p22*(alfa-gamma*beta)*(a-b*c))*IRa*Rm*IRb;
+
+  S11x(n) =  Rx(1,2)/Rx(2,2);
+  S12x(n) =  Rx(1,1) - Rx(1,2)*Rx(2,1)/Rx(2,2);
+  S21x(n) =  1/Rx(2,2);
+  S22x(n) = -Rx(2,1)/Rx(2,2);
+
+end;
+
+Sx=[S11x.' S21x.' S12x.' S22x.'];
+
+
+##### SOURCE END #####
+--></body></html>

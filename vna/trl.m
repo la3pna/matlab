@@ -1,4 +1,4 @@
-function [Sx,GL]=trl(Sthru,Sopen,Sline,Sdut,freq);
+function [Sx,GL]=trl(Sthru,Sopen,Sline,Sdut,freq)
 
 % TRL performs a two-tier TRL calibration for a vector network analyser.
 % The first calibration consist of a normal co-axial SOLT two-port calibration
