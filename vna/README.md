@@ -3,8 +3,6 @@ The code in the VNA folder is not mine, I have modified some of it to fit my usa
 % Version : 3.50
 % Date : 07/06/1995
 
-Given that I was 8 when the code was written, I didnt understand much about S-parmeters.
-
 As for the equations, they do follow almost directly from:
 % [1] G.F. Engen, C.A. Hoer, "Thru-Reflect-Line: An Improved Technique for
 % Calibrating the Dual Six-Port Automatic Network Analyser,"
