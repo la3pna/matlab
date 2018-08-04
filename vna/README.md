@@ -8,4 +8,21 @@ As for the equations, they do follow almost directly from:
 % Calibrating the Dual Six-Port Automatic Network Analyser,"
 % IEEE Trans. MTT, Vol. 27,No. 12, December 1979, pp. 987-998
 
-For TRL stone, check that your line length is propper, if it is to short, you will get invalid data with no way to determine that. Please look at the issues.
+Use TRL stone if you don't understand the difference between the routines, this one works on touchstone files.
+
+For TRL stone, check that your line length is propper, if it is to short, you will get invalid data with no way to determine that. Please look at the resolved issues to see if anyone else has the same problem.
+
+When opening a issue, provide the following:
+-  In the issue text:
+1. What you have tried (what script, options etc)
+2. Line electrical length
+3. Link to github repo, see below
+4. What the problem seems to be, and how you 
+
+-  In a github repo:
+1. All of your S-parameters
+2. File and Plot of resulting S-parameters, frequency list and propagation constant. This is all the function returns!
+3. plot of amplitude (dB) + phase (in same plot) of all your s-parameters that you feed into the algorithm.
+
+
+Fault finding a TRL calibraation can take a lot of hours, this makes it easier, when I get the data provided. Extended fault finding are available for a consulting fee, contact me for avaliability.
