@@ -8,7 +8,7 @@ As for the equations, they do follow almost directly from:
 % Calibrating the Dual Six-Port Automatic Network Analyser,"
 % IEEE Trans. MTT, Vol. 27,No. 12, December 1979, pp. 987-998
 
-Use TRL stone if you don't understand the difference between the routines, this one works on touchstone files.
+Use TRL stone if you don't understand the difference between the routines, this one works on touchstone files directly.
 
 For TRL stone, check that your line length is propper, if it is to short, you will get invalid data with no way to determine that. Please look at the resolved issues to see if anyone else has the same problem.
 
@@ -17,7 +17,8 @@ When opening a issue, provide the following:
 1. What you have tried (what script, options etc)
 2. Line electrical length
 3. Link to github repo, see below
-4. What the problem seems to be, and how you 
+4. What the problem seems to be, and how you have tried to solve it.
+5. If the data are real or simulated. 
 
 -  In a github repo:
 1. All of your S-parameters
